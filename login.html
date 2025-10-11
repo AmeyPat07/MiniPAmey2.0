@@ -20,6 +20,11 @@
         </section>
     </main>
     <script>
+        // Check if already logged in
+        if (localStorage.getItem('currentUser')) {
+            window.location.href = 'index.html';
+        }
+
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('name').value.trim();
@@ -31,8 +36,9 @@
                 password: 'password123'
             };
             if(email === sampleUser.email && password === sampleUser.password && name) {
-                // Store user name in localStorage
-                localStorage.setItem('username', name);
+                // Store user in localStorage
+                const currentUser = { name: name, activities: [] };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 // Redirect to home page
                 window.location.href = 'index.html';
             } else {

@@ -17,11 +17,8 @@
       <input type="text" id="search-bar" placeholder="Search for plants..." />
       <button id="camera-btn" class="nav-button">📷</button>
     </div>
-    <div class="header-right">
-      <a href="login.html" class="nav-button">Login</a>
-      <a href="signup.html" class="nav-button">Sign Up</a>
-      <a href="reminders.html" class="nav-button">Reminders</a>
-      <a href="trackrecord.html" class="nav-button">Track Record</a>
+    <div class="header-right" id="header-right">
+      <!-- Dynamic: Login/SignUp or Dashboard -->
     </div>
   </header>
 
@@ -61,6 +58,13 @@
         <p>Schedule plant care tasks</p>
       </div>
       <div class="feature">
+        <a href="plants.html" class="feature-link">
+          <span class="icon">🌱</span>
+          <h2>Growing Guides</h2>
+        </a>
+        <p>Watch tutorials on growing plants</p>
+      </div>
+      <div class="feature">
         <a href="#" class="feature-link">
           <span class="icon">💬</span>
           <h2>AI Assistant</h2>
@@ -70,30 +74,30 @@
     </section>
 
     <!-- 🌿 Reminder Feature Starts Here -->
-    <section id="reminder-feature">
-      <h2>🔔 Set a Plant Reminder</h2>
-      <label for="plantName">Plant Name:</label>
-      <input type="text" id="plantName" placeholder="e.g. Basil" />
+    <section id="reminder-feature" style="border: 1px solid #ccc; padding: 20px; margin: 20px 0; border-radius: 8px; background: #f9f9f9; font-family: Arial, sans-serif; font-size: 14px;">
+      <h2 style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">🔔 Set a Plant Reminder</h2>
+      <label for="plantName" style="font-size: 14px; color: #333;">Plant Name:</label>
+      <input type="text" id="plantName" placeholder="e.g. Basil" style="font-size: 14px;" />
 
-      <label for="task">Task:</label>
-      <select id="task">
+      <label for="task" style="font-size: 14px; color: #333;">Task:</label>
+      <select id="task" style="font-size: 14px;">
         <option value="Water">Water</option>
         <option value="Fertilize">Fertilize</option>
         <option value="Pesticide">Pesticide</option>
         <option value="Cutting">Cutting</option>
       </select>
 
-      <label for="frequency">Reminder Frequency:</label>
-      <select id="frequency">
+      <label for="frequency" style="font-size: 14px; color: #333;">Reminder Frequency:</label>
+      <select id="frequency" style="font-size: 14px;">
         <option value="Once">Once</option>
         <option value="Weekly">Weekly</option>
         <option value="Monthly">Monthly</option>
       </select>
 
-      <label for="reminderTime">Set Time:</label>
-      <input type="time" id="reminderTime" />
+      <label for="reminderTime" style="font-size: 14px; color: #333;">Set Time:</label>
+      <input type="time" id="reminderTime" style="font-size: 14px;" />
 
-      <button onclick="setReminder()">Set Reminder</button>
+      <button onclick="setReminder()" class="nav-button">Set Reminder</button>
       <audio id="alarmSound" src="alarm.mp3" preload="auto" onerror="console.error('❌ alarm.mp3 not found')"></audio>
     </section>
     <!-- 🌿 Reminder Feature Ends Here -->
@@ -121,7 +125,7 @@
         </div>
       </div>
       <div class="info-card">
-        <h3>Plant Health Overview</h3>
+        <h3>Plant Health</h3>
         <div class="health-stats">
           <div><strong>0</strong><br />Healthy</div>
           <div><strong>0</strong><br />Needs Attention</div>
@@ -131,6 +135,34 @@
   </main>
 
   <script>
+    // Auth check
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+    } else {
+      // Update header for logged in
+      const headerRight = document.getElementById('header-right');
+      headerRight.innerHTML = `<a href="dashboard.html" class="nav-button">Dashboard</a> <div class="account-dropdown" id="account-name">${currentUser.name} ▼</div><div class="dropdown-menu" id="dropdown-menu" style="display:none; position:absolute; background:white; border:1px solid #ccc; padding:10px; z-index:1000;"><button onclick="logout()">Log Out</button><button onclick="profile()">Profile</button><button onclick="switchUser()">Switch User</button></div>`;
+      // Add event listener for dropdown
+      document.getElementById('account-name').addEventListener('click', function() {
+        const menu = document.getElementById('dropdown-menu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'login.html';
+    }
+
+    function profile() {
+      window.location.href = 'profile.html';
+    }
+
+    function switchUser() {
+      logout();
+    }
+
     function setReminder() {
       const plant = document.getElementById('plantName').value;
       const task = document.getElementById('task').value;

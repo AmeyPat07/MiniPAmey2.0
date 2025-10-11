@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Record - UrbanGrow</title>
+    <title>Plants - UrbanGrow</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,9 +21,10 @@
         </div>
     </header>
     <main>
-        <section id="track-record">
-            <h1>Your Gardening Activities</h1>
-            <ul id="activity-list"></ul>
+        <section id="plants">
+            <h1>Plant Growing Guides</h1>
+            <p>Click on a plant to watch a YouTube tutorial on how to grow it.</p>
+            <ul id="plants-list"></ul>
         </section>
     </main>
     <script>
@@ -55,19 +56,14 @@
             logout();
         }
     </script>
-    <script src="script.js"></script>
+    <script src="plants.js"></script>
     <script>
-        const activityList = document.getElementById('activity-list');
-
-        if (currentUser) {
-            currentUser.activities.forEach(activity => {
-                const li = document.createElement('li');
-                li.textContent = activity;
-                activityList.appendChild(li);
-            });
-        } else {
-            activityList.innerHTML = '<li>Please login to view your activities.</li>';
-        }
+        const plantsList = document.getElementById('plants-list');
+        plants.forEach(plant => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${plant.link}" target="_blank">${plant.plant}</a>`;
+            plantsList.appendChild(li);
+        });
     </script>
 </body>
 </html>

@@ -240,6 +240,7 @@ main {
     display: flex;
     align-items: center;
     gap: 20px;
+    text-align: center;
 }
 
 .info-item img {
@@ -258,9 +259,10 @@ main {
 .health-stats {
     display: flex;
     justify-content: space-around;
-    font-size: 1.5rem;
-    color: #4a7c4a;
+    font-size: 1.5 rem;
+    color: #374a37;
     font-weight: 700;
+    text-align: center;
 }
 
 .health-stats div {
@@ -478,6 +480,54 @@ main {
     text-align: left;
 }
 
+/* Plants page */
+#plants {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+#plants h1 {
+    font-size: 2.5rem;
+    color: #2a5d1a;
+    font-family: 'Georgia', serif;
+    margin-bottom: 20px;
+}
+
+#plants p {
+    font-size: 1.2rem;
+    color: #4a7c4a;
+    margin-bottom: 40px;
+}
+
+#plants-list {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#plants-list li {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    font-size: 1.2rem;
+    color: #4a7c4a;
+    font-weight: 600;
+    text-align: left;
+}
+
+#plants-list a {
+    text-decoration: none;
+    color: #56ab2f;
+    font-weight: 700;
+}
+
+#plants-list a:hover {
+    color: #2e7d32;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     header {
@@ -509,7 +559,7 @@ main {
         width: 90%;
         padding: 20px;
     }
-    #reminder-list, #activity-list {
+    #reminder-list, #activity-list, #plants-list {
         width: 90%;
     }
 }

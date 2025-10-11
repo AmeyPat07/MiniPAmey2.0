@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Record - UrbanGrow</title>
+    <title>Profile - UrbanGrow</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,8 +21,10 @@
         </div>
     </header>
     <main>
-        <section id="track-record">
-            <h1>Your Gardening Activities</h1>
+        <section id="profile">
+            <h1>Your Profile</h1>
+            <div id="user-details"></div>
+            <h2>Your Garden Activities</h2>
             <ul id="activity-list"></ul>
         </section>
     </main>
@@ -40,6 +42,22 @@
                 const menu = document.getElementById('dropdown-menu');
                 menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
             });
+
+            // Display user details
+            const userDetails = document.getElementById('user-details');
+            userDetails.innerHTML = `<p><strong>Name:</strong> ${currentUser.name}</p>`;
+
+            // Display activities
+            const activityList = document.getElementById('activity-list');
+            if (currentUser.activities && currentUser.activities.length > 0) {
+                currentUser.activities.forEach(activity => {
+                    const li = document.createElement('li');
+                    li.textContent = activity;
+                    activityList.appendChild(li);
+                });
+            } else {
+                activityList.innerHTML = '<li>No activities recorded yet.</li>';
+            }
         }
 
         function logout() {
@@ -56,18 +74,5 @@
         }
     </script>
     <script src="script.js"></script>
-    <script>
-        const activityList = document.getElementById('activity-list');
-
-        if (currentUser) {
-            currentUser.activities.forEach(activity => {
-                const li = document.createElement('li');
-                li.textContent = activity;
-                activityList.appendChild(li);
-            });
-        } else {
-            activityList.innerHTML = '<li>Please login to view your activities.</li>';
-        }
-    </script>
 </body>
 </html>

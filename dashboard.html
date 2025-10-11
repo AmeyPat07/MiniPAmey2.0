@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Record - UrbanGrow</title>
+    <title>Dashboard - UrbanGrow</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,9 +21,30 @@
         </div>
     </header>
     <main>
-        <section id="track-record">
-            <h1>Your Gardening Activities</h1>
-            <ul id="activity-list"></ul>
+        <section id="dashboard">
+            <h1>Your Dashboard</h1>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h2>My Garden</h2>
+                    <p>View and manage your plants</p>
+                    <a href="index.html" class="nav-button">Go to Garden</a>
+                </div>
+                <div class="dashboard-card">
+                    <h2>Set Reminders</h2>
+                    <p>Schedule plant care tasks</p>
+                    <a href="reminders.html" class="nav-button">Set Reminders</a>
+                </div>
+                <div class="dashboard-card">
+                    <h2>Track Record</h2>
+                    <p>View your gardening activities</p>
+                    <a href="trackrecord.html" class="nav-button">View Activities</a>
+                </div>
+                <div class="dashboard-card">
+                    <h2>Growing Guides</h2>
+                    <p>Learn how to grow plants</p>
+                    <a href="plants.html" class="nav-button">Watch Tutorials</a>
+                </div>
+            </div>
         </section>
     </main>
     <script>
@@ -56,18 +77,5 @@
         }
     </script>
     <script src="script.js"></script>
-    <script>
-        const activityList = document.getElementById('activity-list');
-
-        if (currentUser) {
-            currentUser.activities.forEach(activity => {
-                const li = document.createElement('li');
-                li.textContent = activity;
-                activityList.appendChild(li);
-            });
-        } else {
-            activityList.innerHTML = '<li>Please login to view your activities.</li>';
-        }
-    </script>
 </body>
 </html>
