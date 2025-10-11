@@ -1,0 +1,515 @@
+/* Reset and base */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+    color: #1b3a1a;
+    transition: background 0.5s ease;
+    overflow-x: hidden;
+}
+
+/* Background image for main */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.15;
+    z-index: -1;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: rgba(34, 77, 24, 0.85);
+    color: #e6f2d6;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-weight: 700;
+    font-size: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 28px;
+    font-family: 'Georgia', serif;
+    letter-spacing: 1.5px;
+    cursor: default;
+    color: #d4f1a3;
+    text-shadow: 1px 1px 3px #2a5d1a;
+}
+
+.header-center {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    color: #d4f1a3;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Buttons */
+.nav-button {
+    background: linear-gradient(45deg, #7ed56f, #28b485);
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: 700;
+    padding: 12px 24px;
+    font-size: 16px;
+    box-shadow: 0 6px 15px rgba(40, 180, 133, 0.6);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.nav-button:hover {
+    background: linear-gradient(45deg, #28b485, #7ed56f);
+    box-shadow: 0 8px 20px rgba(40, 180, 133, 0.8);
+    transform: translateY(-3px);
+}
+
+.nav-button.active {
+    background: #28b485;
+    box-shadow: 0 8px 20px rgba(40, 180, 133, 0.9);
+}
+
+/* Search bar */
+#search-bar {
+    flex: 1;
+    max-width: 480px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+    outline: black;
+}
+
+#search-bar:focus {
+    outline: black;
+    box-shadow: 0 0 12px 3px #7ed56f;
+}
+
+/* Main content */
+main {
+    padding: 60px 40px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    animation: fadeInUp 1s ease forwards;
+}
+
+/* Welcome section */
+#welcome {
+    margin-bottom: 60px;
+    font-family: 'Georgia', serif;
+    color: #2a5d1a;
+    text-shadow: 1px 1px 2px #a3d18f;
+}
+
+#welcome h1 {
+    font-size: 3.8rem;
+    margin-bottom: 15px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+#welcome p {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4a7c4a;
+}
+
+/* Features section */
+#features {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+.feature {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    width: 300px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+.feature-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #2a5d1a;
+    font-weight: 700;
+    font-size: 1.9rem;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.feature-link .icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    color: #56ab2f;
+    transition: transform 0.4s ease;
+}
+
+.feature:hover .feature-link .icon {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Feature description */
+.feature p {
+    font-size: 1.2rem;
+    color: #4a7c4a;
+    font-weight: 600;
+    z-index: 2;
+    position: relative;
+}
+
+/* Info cards */
+#info-cards {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 60px;
+    flex-wrap: wrap;
+    
+
+}
+
+.info-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    width: 320px;
+    text-align: left;
+    font-weight: 600;
+    color: #2a5d1a;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-weight: 900;
+    color: #3a7d2a;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.info-item img {
+    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.task-icon {
+    font-size: 2.5rem;
+    color: #56ab2f;
+}
+
+.health-stats {
+    display: flex;
+    justify-content: space-around;
+    font-size: 1.5rem;
+    color: #4a7c4a;
+    font-weight: 700;
+}
+
+.health-stats div {
+    text-align: center;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Login page */
+.login-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+    overflow: hidden;
+    position: relative;
+}
+
+.login-main::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.15;
+    z-index: -1;
+}
+
+#login-section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px 90px;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    width: 80%;
+    max-width: 45%;
+    text-align: center;
+}
+
+#login-section h1 {
+    margin-bottom: 30px;
+    color: #2a5d1a;
+    font-family: 'Georgia', serif;
+    align-items: center;
+    align-self: center;
+    align-content: center;
+}
+
+#login-section input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+    align-items: center;
+    align-self: center;
+    align-content: center;
+}
+
+#login-section input:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 8px #2e7d32;
+    align-items: center;
+    align-self: center;
+    align-content: center;
+}
+
+#login-section button {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 18px;
+    background: linear-gradient(45deg, #7ed56f, #28b485);
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: 700;
+    box-shadow: 0 6px 15px rgba(40, 180, 133, 0.6);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+#login-section button:hover {
+    background: linear-gradient(45deg, #28b485, #7ed56f);
+    box-shadow: 0 8px 20px rgba(40, 180, 133, 0.8);
+    transform: translateY(-3px);
+}
+
+/* Reminders page */
+#reminders {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+#reminders h1 {
+    font-size: 2.5rem;
+    color: #2a5d1a;
+    font-family: 'Georgia', serif;
+    margin-bottom: 40px;
+}
+
+#reminder-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+#reminder-form label {
+    font-weight: 600;
+    color: #2a5d1a;
+    text-align: left;
+}
+
+#reminder-form input, #reminder-form select {
+    padding: 12px;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+#reminder-form input:focus, #reminder-form select:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 8px #2e7d32;
+}
+
+#reminder-form button {
+    padding: 12px;
+    background: linear-gradient(45deg, #7ed56f, #28b485);
+    border: none;
+    color: white;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+#reminder-form button:hover {
+    background: linear-gradient(45deg, #28b485, #7ed56f);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(40, 180, 133, 0.8);
+}
+
+#reminder-list {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#reminder-list li {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    font-size: 1.1rem;
+    color: #4a7c4a;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Track Record page */
+#track-record {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+#track-record h1 {
+    font-size: 2.5rem;
+    color: #2a5d1a;
+    font-family: 'Georgia', serif;
+    margin-bottom: 40px;
+}
+
+#activity-list {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#activity-list li {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    font-size: 1.2rem;
+    color: #4a7c4a;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 20px;
+    }
+    .header-center {
+        justify-content: flex-start;
+        gap: 10px;
+        margin-top: 10px;
+        width: 100%;
+    }
+    #features {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .feature {
+        width: 90%;
+        margin: 10px 0;
+    }
+    #info-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    #reminder-form {
+        width: 90%;
+        padding: 20px;
+    }
+    #reminder-list, #activity-list {
+        width: 90%;
+    }
+}

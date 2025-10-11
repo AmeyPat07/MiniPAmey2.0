@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Record - UrbanGrow</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="index.html" class="nav-button">🏠 Home</a>
+            <div class="logo">🌿 UrbanGrow</div>
+        </div>
+        <div class="header-center">
+            <input type="text" id="search-bar" placeholder="Search for plants..." />
+            <button id="camera-btn" class="nav-button">📷</button>
+        </div>
+        <div class="header-right">
+            <div class="account-dropdown" id="account-name">User ▼</div>
+        </div>
+    </header>
+    <main>
+        <section id="track-record">
+            <h1>Your Gardening Activities</h1>
+            <ul id="activity-list"></ul>
+        </section>
+    </main>
+    <script src="script.js"></script>
+    <script>
+        const activityList = document.getElementById('activity-list');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        if (currentUser) {
+            currentUser.activities.forEach(activity => {
+                const li = document.createElement('li');
+                li.textContent = activity;
+                activityList.appendChild(li);
+            });
+        } else {
+            activityList.innerHTML = '<li>Please login to view your activities.</li>';
+        }
+    </script>
+</body>
+</html>

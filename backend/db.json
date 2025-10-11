@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "7d527485-be70-4495-a43f-e66e2a1193ca",
+    "plantName": "hibiscus",
+    "type": "Water",
+    "frequency": "Once",
+    "time": "2025-10-11T07:30:00.000Z"
+  },
+  {
+    "_id": "84c9df0a-775b-4cc5-aa6d-c3331b307c9b",
+    "plantName": "hibiscus",
+    "type": "Water",
+    "frequency": "Once",
+    "time": "2025-10-11T07:34:00.000Z"
+  }
+]

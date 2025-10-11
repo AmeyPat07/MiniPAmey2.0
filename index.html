@@ -1,0 +1,163 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UrbanGrow - Smart Assistant for Urban Gardeners</title>
+  <link rel="stylesheet" href="style.css" onerror="console.error('❌ style.css not found')" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <button id="home-btn" class="nav-button">🏠 Home</button>
+      <div class="logo">🌿 UrbanGrow</div>
+    </div>
+    <div class="header-center">
+      <input type="text" id="search-bar" placeholder="Search for plants..." />
+      <button id="camera-btn" class="nav-button">📷</button>
+    </div>
+    <div class="header-right">
+      <a href="login.html" class="nav-button">Login</a>
+      <a href="signup.html" class="nav-button">Sign Up</a>
+      <a href="reminders.html" class="nav-button">Reminders</a>
+      <a href="trackrecord.html" class="nav-button">Track Record</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="welcome">
+      <h1>Welcome to Your Urban Garden</h1>
+      <p>Your smart assistant for plant care and gardening success</p>
+    </section>
+
+    <section id="features">
+      <div class="feature">
+        <a href="#" class="feature-link" id="add-plant-btn">
+          <span class="icon">➕</span>
+          <h2>Add a Plant</h2>
+        </a>
+        <p>Add a plant present in your garden</p>
+      </div>
+      <div class="feature">
+        <a href="#" class="feature-link">
+          <span class="icon">📷</span>
+          <h2>Identify Plant</h2>
+        </a>
+        <p>Take a photo to identify your plant</p>
+      </div>
+      <div class="feature">
+        <a href="#" class="feature-link">
+          <span class="icon">🌱</span>
+          <h2>My Garden</h2>
+        </a>
+        <p>View and manage your plants</p>
+      </div>
+      <div class="feature">
+        <a href="reminders.html" class="feature-link">
+          <span class="icon">🔔</span>
+          <h2>Set Reminders</h2>
+        </a>
+        <p>Schedule plant care tasks</p>
+      </div>
+      <div class="feature">
+        <a href="#" class="feature-link">
+          <span class="icon">💬</span>
+          <h2>AI Assistant</h2>
+        </a>
+        <p>Ask gardening questions</p>
+      </div>
+    </section>
+
+    <!-- 🌿 Reminder Feature Starts Here -->
+    <section id="reminder-feature">
+      <h2>🔔 Set a Plant Reminder</h2>
+      <label for="plantName">Plant Name:</label>
+      <input type="text" id="plantName" placeholder="e.g. Basil" />
+
+      <label for="task">Task:</label>
+      <select id="task">
+        <option value="Water">Water</option>
+        <option value="Fertilize">Fertilize</option>
+        <option value="Pesticide">Pesticide</option>
+        <option value="Cutting">Cutting</option>
+      </select>
+
+      <label for="frequency">Reminder Frequency:</label>
+      <select id="frequency">
+        <option value="Once">Once</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+      </select>
+
+      <label for="reminderTime">Set Time:</label>
+      <input type="time" id="reminderTime" />
+
+      <button onclick="setReminder()">Set Reminder</button>
+      <audio id="alarmSound" src="alarm.mp3" preload="auto" onerror="console.error('❌ alarm.mp3 not found')"></audio>
+    </section>
+    <!-- 🌿 Reminder Feature Ends Here -->
+
+    <section id="info-cards">
+      <div class="info-card">
+        <h3>Recent Identifications</h3>
+        <div class="info-item">
+          <img src="snakeplant.webp" alt="placeholder" width="50" height="50">
+          <div>
+            <strong>Snake Plant</strong><br />
+            Identified 2 days ago
+          </div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>Today's Tasks</h3>
+        <div class="info-item">
+          
+          <img src="cherrytomato.webp" alt="placeholder" width="50" height="50">
+          <div>
+            <strong>Water Cherry Tomato</strong><br />
+            Due in 2 hours
+          </div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>Plant Health Overview</h3>
+        <div class="health-stats">
+          <div><strong>0</strong><br />Healthy</div>
+          <div><strong>0</strong><br />Needs Attention</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function setReminder() {
+      const plant = document.getElementById('plantName').value;
+      const task = document.getElementById('task').value;
+      const frequency = document.getElementById('frequency').value;
+      const time = document.getElementById('reminderTime').value;
+
+      if (!plant || !time) {
+        alert("Please enter plant name and time.");
+        return;
+      }
+
+      alert(`Reminder set for ${task} ${plant} (${frequency}) at ${time}`);
+
+      const now = new Date();
+      const [hours, minutes] = time.split(":");
+      const reminderTime = new Date();
+      reminderTime.setHours(hours, minutes, 0, 0);
+
+      let delay = reminderTime - now;
+      if (delay < 0) delay += 86400000; // next day
+
+      setTimeout(() => {
+        document.getElementById('alarmSound').play();
+        alert(`⏰ Time to ${task} your ${plant}!`);
+      }, delay);
+    }
+  </script>
+  
+</body>
+</html>

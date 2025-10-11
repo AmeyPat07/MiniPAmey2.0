@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - UrbanGrow</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="title">UrbanGrow</div>
+        <div class="nav">
+            <button id="home-btn">Home</button>
+            <input type="text" id="search-bar" placeholder="Search for plants...">
+            <button id="camera-btn">📷 Camera</button>
+        </div>
+        <div class="account">Account</div>
+    </header>
+    <main>
+        <section id="signup">
+            <h1>Sign Up</h1>
+            <form id="signup-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Sign Up</button>
+            </form>
+            <p>Already have an account? <a href="login.html">Login</a></p>
+        </section>
+    </main>
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.find(u => u.email === email)) {
+                alert('User already exists.');
+            } else {
+                users.push({ name, email, password, activities: [] });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Sign up successful! Please login.');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
+

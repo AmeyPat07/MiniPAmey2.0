@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - UrbanGrow</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <main class="login-main">
+        <section id="login-section">
+            <h1>Login to UrbanGrow</h1>
+            <form id="login-form">
+                <input type="text" id="name" required placeholder="Full Name" />
+                <input type="email" id="email" required placeholder="Email" />
+                <input type="password" id="password" required placeholder="Password" />
+                <button type="submit" class="nav-button">Login</button>
+            </form>
+            <p id="error-msg" style="color:red; display:none; margin-top: 10px;">Invalid email or password.</p>
+        </section>
+    </main>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            // Sample user credentials
+            const sampleUser = {
+                email: 'user@example.com',
+                password: 'password123'
+            };
+            if(email === sampleUser.email && password === sampleUser.password && name) {
+                // Store user name in localStorage
+                localStorage.setItem('username', name);
+                // Redirect to home page
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

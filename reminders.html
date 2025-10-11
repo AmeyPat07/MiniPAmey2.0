@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminders - UrbanGrow</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="index.html" class="nav-button">🏠 Home</a>
+            <div class="logo">🌿 UrbanGrow</div>
+        </div>
+        <div class="header-center">
+            <input type="text" id="search-bar" placeholder="Search for plants..." />
+            <button id="camera-btn" class="nav-button">📷</button>
+        </div>
+        <div class="header-right">
+            <div class="account-dropdown" id="account-name">User ▼</div>
+        </div>
+    </header>
+    <main>
+        <section id="reminders">
+            <h1>Set Reminders</h1>
+            <form id="reminder-form">
+                <label for="plant-name">Plant Name:</label>
+                <input type="text" id="plant-name" placeholder="Enter plant name" required>
+                <label for="reminder-type">Type:</label>
+                <select id="reminder-type">
+                    <option value="watering">Watering</option>
+                    <option value="fertilizer">Fertilizer</option>
+                    <option value="pesticide">Pesticide</option>
+                    <option value="cutting">Cutting</option>
+                </select>
+                <label for="reminder-frequency">Frequency:</label>
+                <select id="reminder-frequency">
+                    <option value="once">One-time</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+                <label for="reminder-time">Time:</label>
+                <input type="datetime-local" id="reminder-time" required>
+                <button type="submit">Set Reminder</button>
+            </form>
+            <ul id="reminder-list"></ul>
+    </main>
+    <script src="script.js"></script>
+    <script>
+        const reminderForm = document.getElementById('reminder-form');
+        const reminderList = document.getElementById('reminder-list');
+        const alarmSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.wav');
+
+        reminderForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const plantName = document.getElementById('plant-name').value;
+            const type = document.getElementById('reminder-type').value;
+            const frequency = document.getElementById('reminder-frequency').value;
+            const time = document.getElementById('reminder-time').value;
+            const reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+            reminders.push({ plantName, type, frequency, time, nextTime: new Date(time).getTime() });
+            localStorage.setItem('reminders', JSON.stringify(reminders));
+            displayReminders();
+            scheduleAlarm(reminders[reminders.length - 1]);
+            alert('Reminder set!');
+        });
+
+        function displayReminders() {
+            const reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+            reminderList.innerHTML = '';
+            reminders.forEach((reminder, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${reminder.plantName} - ${reminder.type} (${reminder.frequency}) at ${new Date(reminder.time).toLocaleString()}`;
+                reminderList.appendChild(li);
+            });
+        }
+
+        function scheduleAlarm(reminder) {
+            const now = Date.now();
+            let delay = reminder.nextTime - now;
+            if (delay > 0) {
+                setTimeout(() => {
+                    alarmSound.play();
+                    alert(`Reminder: ${reminder.plantName} - ${reminder.type}`);
+                    if (reminder.frequency !== 'once') {
+                        updateNextTime(reminder);
+                        scheduleAlarm(reminder);
+                    }
+                }, delay);
+            }
+        }
+
+        function updateNextTime(reminder) {
+            const date = new Date(reminder.nextTime);
+            if (reminder.frequency === 'daily') {
+                date.setDate(date.getDate() + 1);
+            } else if (reminder.frequency === 'weekly') {
+                date.setDate(date.getDate() + 7);
+            } else if (reminder.frequency === 'monthly') {
+                date.setMonth(date.getMonth() + 1);
+            }
+            reminder.nextTime = date.getTime();
+            const reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+            const index = reminders.findIndex(r => r.time === reminder.time && r.type === reminder.type);
+            if (index !== -1) {
+                reminders[index] = reminder;
+                localStorage.setItem('reminders', JSON.stringify(reminders));
+            }
+        }
+
+        // Load and schedule existing reminders
+        const reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+        reminders.forEach(reminder => scheduleAlarm(reminder));
+        displayReminders();
+    </script>
+    <script src="script.js"></script>
+<script src="reminders.js"></script>
+</body>
+</html>
