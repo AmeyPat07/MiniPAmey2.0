@@ -37,14 +37,14 @@
         <p>Add a plant present in your garden</p>
       </div>
       <div class="feature">
-        <a href="#" class="feature-link">
+        <a href="#" class="feature-link" id="identify-plant-btn">
           <span class="icon">📷</span>
           <h2>Identify Plant</h2>
         </a>
         <p>Take a photo to identify your plant</p>
       </div>
       <div class="feature">
-        <a href="#" class="feature-link">
+        <a href="my-garden.html" class="feature-link">
           <span class="icon">🌱</span>
           <h2>My Garden</h2>
         </a>
@@ -132,7 +132,56 @@
         </div>
       </div>
     </section>
-  </main>                               
+  </main>
+
+  <!-- Camera Modal -->
+  <div id="camera-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
+    <div style="position:relative; max-width:90%; max-height:90%; display:flex; flex-direction:column; align-items:center;">
+      <button id="close-camera" style="position:absolute; top:10px; right:10px; background:#ff4444; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-size:16px; z-index:10000;">✕ Close</button>
+      <video id="camera-video" autoplay playsinline style="width:100%; max-width:640px; border-radius:10px; margin-top:50px;"></video>
+      <canvas id="camera-canvas" style="display:none;"></canvas>
+      <button id="capture-photo" style="margin-top:20px; background:#4CAF50; color:white; border:none; padding:15px 30px; border-radius:5px; cursor:pointer; font-size:18px;">📸 Capture Photo</button>
+      <img id="captured-image" style="display:none; max-width:640px; border-radius:10px; margin-top:20px;" />
+      <div id="photo-actions" style="display:none; margin-top:20px;">
+        <button id="retake-photo" style="background:#ff9800; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-size:16px; margin-right:10px;">🔄 Retake</button>
+        <button id="use-photo" style="background:#2196F3; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-size:16px;">✓ Use Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file upload input -->
+  <input type="file" id="file-upload-input" accept="image/*" capture="environment" style="display:none;" />
+  
+  <!-- Add Plant Modal -->
+  <div id="add-plant-modal" class="plant-modal">
+    <div class="plant-modal-content">
+      <div class="modal-header">
+        <h2>🌿 Add a Plant to Your Garden</h2>
+        <button class="close-modal" id="close-plant-modal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Search and Filter Section -->
+        <div class="modal-search-section">
+          <input type="text" id="plant-search" placeholder="🔍 Search plants by name..." class="modal-search-input">
+          <select id="plant-category-filter" class="modal-filter-select">
+            <option value="all">All Categories</option>
+            <option value="Vegetable">Vegetables</option>
+            <option value="Herb">Herbs</option>
+            <option value="Fruit">Fruits</option>
+            <option value="Indoor Plant">Indoor Plants</option>
+            <option value="Succulent">Succulents</option>
+          </select>
+        </div>
+
+        <!-- Plants Grid -->
+        <div id="plants-grid" class="plants-grid">
+          <!-- Plants will be dynamically loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+                               
 
   <script>
     // Auth check
@@ -189,7 +238,152 @@
         alert(`⏰ Time to ${task} your ${plant}!`);
       }, delay);
     }
+
+    // Camera functionality
+    let cameraStream = null;
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraVideo = document.getElementById('camera-video');
+    const cameraCanvas = document.getElementById('camera-canvas');
+    const capturedImage = document.getElementById('captured-image');
+    const captureBtn = document.getElementById('capture-photo');
+    const retakeBtn = document.getElementById('retake-photo');
+    const usePhotoBtn = document.getElementById('use-photo');
+    const closeBtn = document.getElementById('close-camera');
+    const photoActions = document.getElementById('photo-actions');
+
+    // Open camera function
+    async function openCamera() {
+      try {
+        // Check if mediaDevices is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera API not supported in this browser');
+        }
+
+        cameraStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' }, // Use back camera on mobile
+          audio: false 
+        });
+        cameraVideo.srcObject = cameraStream;
+        cameraModal.style.display = 'flex';
+        cameraVideo.style.display = 'block';
+        captureBtn.style.display = 'block';
+        capturedImage.style.display = 'none';
+        photoActions.style.display = 'none';
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        let errorMessage = 'Unable to access camera.\n\n';
+        
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          errorMessage += '📷 Camera access is BLOCKED.\n\n';
+          errorMessage += 'To fix this:\n';
+          errorMessage += '1. Click the 🔒 or ⓘ icon in the address bar\n';
+          errorMessage += '2. Find "Camera" and change to "Allow"\n';
+          errorMessage += '3. Refresh the page (F5)\n';
+          errorMessage += '4. Try again\n\n';
+          errorMessage += 'Or use "Upload Photo" option instead.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage += 'No camera found on this device.';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage += 'Camera is already in use by another application.';
+        } else {
+          errorMessage += error.message || 'Unknown error occurred.';
+        }
+        
+        alert(errorMessage);
+        
+        // Offer file upload as alternative
+        if (confirm('Would you like to upload a photo from your device instead?')) {
+          document.getElementById('file-upload-input').click();
+        }
+      }
+    }
+
+    // Close camera function
+    function closeCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      cameraModal.style.display = 'none';
+      cameraVideo.style.display = 'block';
+      captureBtn.style.display = 'block';
+      capturedImage.style.display = 'none';
+      photoActions.style.display = 'none';
+    }
+
+    // Capture photo function
+    function capturePhoto() {
+      const context = cameraCanvas.getContext('2d');
+      cameraCanvas.width = cameraVideo.videoWidth;
+      cameraCanvas.height = cameraVideo.videoHeight;
+      context.drawImage(cameraVideo, 0, 0);
+      
+      const imageDataUrl = cameraCanvas.toDataURL('image/png');
+      capturedImage.src = imageDataUrl;
+      
+      // Hide video and capture button, show image and actions
+      cameraVideo.style.display = 'none';
+      captureBtn.style.display = 'none';
+      capturedImage.style.display = 'block';
+      photoActions.style.display = 'block';
+    }
+
+    // Retake photo function
+    function retakePhoto() {
+      cameraVideo.style.display = 'block';
+      captureBtn.style.display = 'block';
+      capturedImage.style.display = 'none';
+      photoActions.style.display = 'none';
+    }
+
+    // Use photo function
+    function usePhoto() {
+      const imageDataUrl = capturedImage.src;
+      // Store the image for plant identification
+      localStorage.setItem('plantImage', imageDataUrl);
+      alert('Photo captured! You can now use this for plant identification.');
+      closeCamera();
+      // You can redirect to identification page or process the image here
+      // window.location.href = 'identify.html';
+    }
+
+    // Event listeners for camera buttons
+    document.getElementById('camera-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      openCamera();
+    });
+
+    document.getElementById('identify-plant-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      openCamera();
+    });
+
+    closeBtn.addEventListener('click', closeCamera);
+    captureBtn.addEventListener('click', capturePhoto);
+    retakeBtn.addEventListener('click', retakePhoto);
+    usePhotoBtn.addEventListener('click', usePhoto);
+
+    // File upload handler
+    document.getElementById('file-upload-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const imageDataUrl = event.target.result;
+          localStorage.setItem('plantImage', imageDataUrl);
+          alert('Photo uploaded successfully! You can now use this for plant identification.');
+          // You can redirect to identification page or process the image here
+          // window.location.href = 'identify.html';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please select a valid image file.');
+      }
+    });
   </script>
+  
+  <!-- Plant Modal Script -->
+  <script src="plant-modal.js"></script>
   
 </body>
 </html>

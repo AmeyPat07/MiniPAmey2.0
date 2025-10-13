@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Garden - UrbanGrow</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <button id="home-btn" class="nav-button">🏠 Home</button>
+      <div class="logo">🌿 UrbanGrow</div>
+    </div>
+    <div class="header-center">
+      <input type="text" id="search-garden" placeholder="Search your garden..." />
+    </div>
+    <div class="header-right" id="header-right">
+      <!-- Dynamic: Login/SignUp or Dashboard -->
+    </div>
+  </header>
+
+  <main>
+    <section id="my-garden-section">
+      <div class="garden-header">
+        <div>
+          <h1>🌿 My Garden</h1>
+          <p id="garden-stats">Loading your plants...</p>
+        </div>
+        <button id="add-more-plants-btn" class="nav-button">➕ Add More Plants</button>
+      </div>
+
+      <!-- Garden Stats Cards -->
+      <div class="garden-stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🌱</div>
+          <div class="stat-content">
+            <h3>Total Plants</h3>
+            <div class="stat-number" id="total-plants">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💧</div>
+          <div class="stat-content">
+            <h3>Need Watering Today</h3>
+            <div class="stat-number" id="need-watering">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-content">
+            <h3>Active Alarms</h3>
+            <div class="stat-number" id="active-alarms">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-content">
+            <h3>Watered This Week</h3>
+            <div class="stat-number" id="watered-week">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter and Sort -->
+      <div class="garden-controls">
+        <select id="garden-filter" class="garden-select">
+          <option value="all">All Plants</option>
+          <option value="needs-water">Needs Watering</option>
+          <option value="recently-watered">Recently Watered</option>
+          <option value="has-alarm">Has Alarm Set</option>
+        </select>
+        <select id="garden-sort" class="garden-select">
+          <option value="date-added">Sort by Date Added</option>
+          <option value="name">Sort by Name</option>
+          <option value="next-watering">Sort by Next Watering</option>
+        </select>
+      </div>
+
+      <!-- Garden Grid -->
+      <div id="garden-grid" class="garden-grid">
+        <!-- Plants will be loaded here dynamically -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-garden" class="empty-garden" style="display: none;">
+        <div class="empty-icon">🌱</div>
+        <h2>Your Garden is Empty</h2>
+        <p>Start adding plants to track their care and set watering reminders!</p>
+        <button id="add-first-plant-btn" class="nav-button">➕ Add Your First Plant</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Watering Alarm Modal -->
+  <div id="watering-alarm-modal" class="plant-modal">
+    <div class="plant-modal-content alarm-modal-content">
+      <div class="modal-header">
+        <h2>⏰ Set Watering Alarm</h2>
+        <button class="close-modal" id="close-alarm-modal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="alarm-plant-info" id="alarm-plant-info">
+          <!-- Plant info will be inserted here -->
+        </div>
+
+        <form id="alarm-form" class="alarm-form">
+          <div class="form-group">
+            <label for="watering-frequency">Watering Frequency</label>
+            <select id="watering-frequency" class="form-input" required>
+              <option value="">Select frequency...</option>
+              <option value="daily">Daily</option>
+              <option value="every-2-days">Every 2 Days</option>
+              <option value="every-3-days">Every 3 Days</option>
+              <option value="weekly">Weekly (Every 7 Days)</option>
+              <option value="bi-weekly">Bi-Weekly (Every 14 Days)</option>
+              <option value="monthly">Monthly (Every 30 Days)</option>
+              <option value="custom">Custom Interval</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="custom-days-group" style="display: none;">
+            <label for="custom-days">Custom Days Interval</label>
+            <input type="number" id="custom-days" class="form-input" min="1" max="365" placeholder="Enter number of days">
+          </div>
+
+          <div class="form-group">
+            <label for="alarm-time">Alarm Time</label>
+            <input type="time" id="alarm-time" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="alarm-sound">Alarm Sound</label>
+            <select id="alarm-sound" class="form-input">
+              <option value="default">Default Alarm</option>
+              <option value="gentle">Gentle Bell</option>
+              <option value="nature">Nature Sounds</option>
+              <option value="chime">Wind Chime</option>
+            </select>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" id="enable-notifications" checked>
+              <span>Enable browser notifications</span>
+            </label>
+          </div>
+
+          <div class="alarm-preview" id="alarm-preview">
+            <!-- Preview will be shown here -->
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancel-alarm-btn">Cancel</button>
+            <button type="submit" class="btn-primary">💾 Save Alarm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Plant Modal (reuse from index.html) -->
+  <div id="add-plant-modal" class="plant-modal">
+    <div class="plant-modal-content">
+      <div class="modal-header">
+        <h2>🌿 Add a Plant to Your Garden</h2>
+        <button class="close-modal" id="close-plant-modal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="modal-search-section">
+          <input type="text" id="plant-search" placeholder="🔍 Search plants by name..." class="modal-search-input">
+          <select id="plant-category-filter" class="modal-filter-select">
+            <option value="all">All Categories</option>
+            <option value="Vegetable">Vegetables</option>
+            <option value="Herb">Herbs</option>
+            <option value="Fruit">Fruits</option>
+            <option value="Indoor Plant">Indoor Plants</option>
+            <option value="Succulent">Succulents</option>
+          </select>
+        </div>
+        <div id="plants-grid" class="plants-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio element for alarm -->
+  <audio id="alarm-audio" preload="auto">
+    <source src="alarm.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Auth check
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+    } else {
+      const headerRight = document.getElementById('header-right');
+      headerRight.innerHTML = `<a href="dashboard.html" class="nav-button">Dashboard</a> <div class="account-dropdown" id="account-name">${currentUser.name} ▼</div><div class="dropdown-menu" id="dropdown-menu" style="display:none; position:absolute; background:white; border:1px solid #ccc; padding:10px; z-index:1000;"><button onclick="logout()">Log Out</button><button onclick="profile()">Profile</button><button onclick="switchUser()">Switch User</button></div>`;
+      document.getElementById('account-name').addEventListener('click', function() {
+        const menu = document.getElementById('dropdown-menu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'login.html';
+    }
+
+    function profile() {
+      window.location.href = 'profile.html';
+    }
+
+    function switchUser() {
+      logout();
+    }
+
+    // Home button
+    document.getElementById('home-btn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+  </script>
+
+  <!-- Garden Management Script -->
+  <script src="my-garden.js"></script>
+  <!-- Plant Modal Script -->
+  <script src="plant-modal.js"></script>
+  
+</body>
+</html>
