@@ -199,15 +199,260 @@ loadReminders();
 
 
 
-    // Search functionality (placeholder)
+    // === Plant Detail Modal Functions (Define First) ===
+    
+    // Show plant detail in modal
+    window.showPlantDetail = function(plant) {
+        const modal = document.getElementById('plant-detail-modal');
+        const plantName = document.getElementById('detail-plant-name');
+        const scientificName = document.getElementById('detail-scientific-name');
+        const plantBody = document.getElementById('plant-detail-body');
+        
+        if (!modal || !plantName || !scientificName || !plantBody) return;
+        
+        // Set plant name and scientific name
+        plantName.textContent = plant.name;
+        scientificName.textContent = plant.scientificName;
+        
+        // Get difficulty badge class
+        let difficultyClass = 'badge-easy';
+        if (plant.difficulty.toLowerCase().includes('moderate')) {
+            difficultyClass = 'badge-moderate';
+        } else if (plant.difficulty.toLowerCase().includes('hard') || plant.difficulty.toLowerCase().includes('difficult')) {
+            difficultyClass = 'badge-hard';
+        }
+        
+        // Build plant details body
+        plantBody.innerHTML = `
+            <div class="plant-detail-section">
+                <h3>📊 Quick Info</h3>
+                <div style="margin-bottom: 15px;">
+                    <span class="plant-detail-badge ${difficultyClass}">${plant.difficulty}</span>
+                    <span class="plant-detail-badge" style="background: #e3f2fd; color: #1565c0;">${plant.category}</span>
+                </div>
+            </div>
+            
+            <div class="plant-detail-section">
+                <h3>💧 Care Requirements</h3>
+                <div class="plant-detail-grid">
+                    <div class="plant-detail-item">
+                        <div class="plant-detail-label">💧 Watering</div>
+                        <div class="plant-detail-value">${plant.wateringFrequency}</div>
+                    </div>
+                    <div class="plant-detail-item">
+                        <div class="plant-detail-label">☀️ Sunlight</div>
+                        <div class="plant-detail-value">${plant.sunlight}</div>
+                    </div>
+                    <div class="plant-detail-item">
+                        <div class="plant-detail-label">🌱 Soil Type</div>
+                        <div class="plant-detail-value">${plant.soilType}</div>
+                    </div>
+                    <div class="plant-detail-item">
+                        <div class="plant-detail-label">📏 Spacing</div>
+                        <div class="plant-detail-value">${plant.spacing}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="plant-detail-section">
+                <h3>⏱️ Growth Information</h3>
+                <div class="plant-detail-item">
+                    <div class="plant-detail-label">🕐 Growth Time</div>
+                    <div class="plant-detail-value">${plant.growthTime}</div>
+                </div>
+            </div>
+            
+            <div class="plant-detail-section" style="text-align: center; margin-top: 30px;">
+                <button onclick="addPlantToGarden('${plant.name}')" class="nav-button" style="margin-right: 10px;">
+                    ➕ Add to My Garden
+                </button>
+                <button onclick="setReminderForPlant('${plant.name}')" class="nav-button" style="background: linear-gradient(45deg, #f093fb, #f5576c);">
+                    🔔 Set Reminder
+                </button>
+            </div>
+        `;
+        
+        // Show modal
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    };
+    
+    // Close plant detail modal
+    window.closePlantDetail = function() {
+        const modal = document.getElementById('plant-detail-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+    };
+    
+    // Add plant to garden
+    window.addPlantToGarden = function(plantName) {
+        let garden = JSON.parse(localStorage.getItem('garden')) || [];
+        
+        // Check if plant already exists
+        const exists = garden.some(p => p.name === plantName);
+        if (exists) {
+            alert(`"${plantName}" is already in your garden!`);
+            return;
+        }
+        
+        garden.push({ 
+            name: plantName, 
+            addedAt: new Date().toISOString() 
+        });
+        localStorage.setItem('garden', JSON.stringify(garden));
+        alert(`✅ "${plantName}" added to your garden!`);
+    };
+    
+    // Set reminder for plant
+    window.setReminderForPlant = function(plantName) {
+        // Pre-fill the reminder form with plant name
+        localStorage.setItem('reminderPlantName', plantName);
+        alert(`Setting reminder for "${plantName}". Redirecting to reminders page...`);
+        window.location.href = 'reminders.html';
+    };
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('plant-detail-modal');
+        if (e.target === modal) {
+            closePlantDetail();
+        }
+    });
+    
+    // === Search Functionality with Autocomplete ===
+    let plantsDatabase = [];
+    const suggestionsContainer = document.getElementById('search-suggestions');
+    
+    console.log('🔍 Search functionality initializing...');
+    console.log('Search bar element:', searchBar);
+    console.log('Suggestions container:', suggestionsContainer);
+    
+    // Load plants database
+    async function loadPlantsDatabase() {
+        try {
+            const response = await fetch('plants-database.json');
+            const data = await response.json();
+            plantsDatabase = data.plants || [];
+            console.log('✅ Plants database loaded:', plantsDatabase.length, 'plants');
+        } catch (error) {
+            console.error('❌ Error loading plants database:', error);
+        }
+    }
+    
+    // Search plants function
+    function searchPlants(query) {
+        if (!query || query.trim().length === 0) {
+            return [];
+        }
+        
+        const searchTerm = query.toLowerCase().trim();
+        
+        return plantsDatabase.filter(plant => {
+            return plant.name.toLowerCase().includes(searchTerm) ||
+                   plant.scientificName.toLowerCase().includes(searchTerm) ||
+                   plant.category.toLowerCase().includes(searchTerm);
+        }).slice(0, 8); // Limit to 8 results
+    }
+    
+    // Display search suggestions
+    function displaySuggestions(results) {
+        if (!suggestionsContainer) return;
+        
+        suggestionsContainer.innerHTML = '';
+        
+        if (results.length === 0) {
+            suggestionsContainer.innerHTML = '<div class="no-results">No plants found. Try a different search term.</div>';
+            suggestionsContainer.classList.add('active');
+            return;
+        }
+        
+        results.forEach(plant => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'suggestion-item';
+            suggestionItem.innerHTML = `
+                <span class="suggestion-icon">🌿</span>
+                <div class="suggestion-text">
+                    <div class="suggestion-name">${plant.name}</div>
+                    <div class="suggestion-category">${plant.category} • ${plant.scientificName}</div>
+                </div>
+            `;
+            
+            suggestionItem.addEventListener('click', () => {
+                window.showPlantDetail(plant);
+                suggestionsContainer.classList.remove('active');
+                searchBar.value = '';
+            });
+            
+            suggestionsContainer.appendChild(suggestionItem);
+        });
+        
+        suggestionsContainer.classList.add('active');
+    }
+    
+    // Hide suggestions
+    function hideSuggestions() {
+        if (suggestionsContainer) {
+            setTimeout(() => {
+                suggestionsContainer.classList.remove('active');
+            }, 200);
+        }
+    }
+    
+    // Search bar event listeners
     if(searchBar) {
+        console.log('✅ Search bar event listeners attached');
+        
+        // Input event for real-time search
+        searchBar.addEventListener('input', function(e) {
+            const query = e.target.value;
+            console.log('🔍 Search query:', query);
+            
+            if (query.trim().length === 0) {
+                hideSuggestions();
+                return;
+            }
+            
+            const results = searchPlants(query);
+            console.log('📊 Search results:', results.length);
+            displaySuggestions(results);
+        });
+        
+        // Enter key to search
         searchBar.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                alert('Searching for: ' + searchBar.value);
+                const query = searchBar.value;
+                const results = searchPlants(query);
+                
+                if (results.length > 0) {
+                    window.showPlantDetail(results[0]);
+                    suggestionsContainer.classList.remove('active');
+                    searchBar.value = '';
+                } else {
+                    alert('No plants found for: ' + query);
+                }
+                
                 e.preventDefault();
             }
         });
+        
+        // Hide suggestions when clicking outside
+        searchBar.addEventListener('blur', hideSuggestions);
+        
+        // Show suggestions when focusing if there's text
+        searchBar.addEventListener('focus', function() {
+            if (searchBar.value.trim().length > 0) {
+                const results = searchPlants(searchBar.value);
+                displaySuggestions(results);
+            }
+        });
+    } else {
+        console.error('❌ Search bar element not found!');
     }
+    
+    // Load plants database on page load
+    loadPlantsDatabase();
 
     // Home button
     if(homeBtn) {

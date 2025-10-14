@@ -14,7 +14,11 @@
       <div class="logo">🌿 UrbanGrow</div>
     </div>
     <div class="header-center">
-      <input type="text" id="search-bar" placeholder="Search for plants..." />
+      <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search for plants..." autocomplete="off" />
+        <span class="search-icon">🔍</span>
+        <div id="search-suggestions" class="search-suggestions"></div>
+      </div>
       <button id="camera-btn" class="nav-button">📷</button>
     </div>
     <div class="header-right" id="header-right">
@@ -105,11 +109,10 @@
     <section id="info-cards">
       <div class="info-card">
         <h3>Recent Identifications</h3>
-        <div class="info-item">
-          <img src="snakeplant.webp" alt="placeholder" width="50" height="50">
-          <div>
-            <strong>Snake Plant</strong><br />
-            Identified 2 days ago
+        <div id="recent-identifications-list">
+          <!-- Recent identifications will be loaded here dynamically -->
+          <div class="info-item" style="color: #999; font-style: italic;">
+            No recent identifications yet. Use "Identify Plant" to capture images!
           </div>
         </div>
       </div>
@@ -339,10 +342,37 @@
     // Use photo function
     function usePhoto() {
       const imageDataUrl = capturedImage.src;
-      // Store the image for plant identification
+      
+      // Get existing identifications or create new array
+      let recentIdentifications = JSON.parse(localStorage.getItem('recentIdentifications')) || [];
+      
+      // Create new identification entry
+      const identification = {
+        id: Date.now(),
+        image: imageDataUrl,
+        plantName: 'Unknown Plant', // Can be updated later with actual identification
+        timestamp: new Date().toISOString(),
+        dateString: new Date().toLocaleDateString()
+      };
+      
+      // Add to beginning of array (most recent first)
+      recentIdentifications.unshift(identification);
+      
+      // Keep only last 10 identifications
+      if (recentIdentifications.length > 10) {
+        recentIdentifications = recentIdentifications.slice(0, 10);
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('recentIdentifications', JSON.stringify(recentIdentifications));
       localStorage.setItem('plantImage', imageDataUrl);
+      
       alert('Photo captured! You can now use this for plant identification.');
       closeCamera();
+      
+      // Refresh the recent identifications display
+      loadRecentIdentifications();
+      
       // You can redirect to identification page or process the image here
       // window.location.href = 'identify.html';
     }
@@ -370,8 +400,36 @@
         const reader = new FileReader();
         reader.onload = function(event) {
           const imageDataUrl = event.target.result;
+          
+          // Get existing identifications or create new array
+          let recentIdentifications = JSON.parse(localStorage.getItem('recentIdentifications')) || [];
+          
+          // Create new identification entry
+          const identification = {
+            id: Date.now(),
+            image: imageDataUrl,
+            plantName: 'Unknown Plant',
+            timestamp: new Date().toISOString(),
+            dateString: new Date().toLocaleDateString()
+          };
+          
+          // Add to beginning of array (most recent first)
+          recentIdentifications.unshift(identification);
+          
+          // Keep only last 10 identifications
+          if (recentIdentifications.length > 10) {
+            recentIdentifications = recentIdentifications.slice(0, 10);
+          }
+          
+          // Save to localStorage
+          localStorage.setItem('recentIdentifications', JSON.stringify(recentIdentifications));
           localStorage.setItem('plantImage', imageDataUrl);
+          
           alert('Photo uploaded successfully! You can now use this for plant identification.');
+          
+          // Refresh the recent identifications display
+          loadRecentIdentifications();
+          
           // You can redirect to identification page or process the image here
           // window.location.href = 'identify.html';
         };
@@ -380,8 +438,369 @@
         alert('Please select a valid image file.');
       }
     });
+
+    // Function to load and display recent identifications
+    function loadRecentIdentifications() {
+      const recentIdentifications = JSON.parse(localStorage.getItem('recentIdentifications')) || [];
+      const listContainer = document.getElementById('recent-identifications-list');
+      
+      if (!listContainer) return;
+      
+      // Clear existing content
+      listContainer.innerHTML = '';
+      
+      if (recentIdentifications.length === 0) {
+        listContainer.innerHTML = `
+          <div class="info-item" style="color: #999; font-style: italic;">
+            No recent identifications yet. Use "Identify Plant" to capture images!
+          </div>
+        `;
+        return;
+      }
+      
+      // Display up to 3 most recent identifications
+      const displayCount = Math.min(3, recentIdentifications.length);
+      
+      for (let i = 0; i < displayCount; i++) {
+        const item = recentIdentifications[i];
+        const timeDiff = getTimeDifference(item.timestamp);
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'info-item';
+        itemDiv.style.cursor = 'pointer';
+        itemDiv.innerHTML = `
+          <img src="${item.image}" alt="${item.plantName}" width="50" height="50" style="object-fit: cover; border-radius: 5px;">
+          <div>
+            <strong>${item.plantName}</strong><br />
+            Identified ${timeDiff}
+          </div>
+        `;
+        
+        // Add click handler to view full image
+        itemDiv.addEventListener('click', () => {
+          showFullImage(item);
+        });
+        
+        listContainer.appendChild(itemDiv);
+      }
+    }
+
+    // Function to calculate time difference
+    function getTimeDifference(timestamp) {
+      const now = new Date();
+      const past = new Date(timestamp);
+      const diffMs = now - past;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 1) return 'just now';
+      if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      if (diffDays === 1) return 'yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      return past.toLocaleDateString();
+    }
+
+    // Function to show full image in modal
+    function showFullImage(item) {
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      `;
+      
+      modal.innerHTML = `
+        <div style="position: relative; max-width: 90%; max-height: 90%; text-align: center;">
+          <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: -40px; right: 0; background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">✕ Close</button>
+          <img src="${item.image}" style="max-width: 100%; max-height: 80vh; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+          <div style="color: white; margin-top: 20px; font-size: 18px;">
+            <strong>${item.plantName}</strong><br>
+            <span style="font-size: 14px; color: #ccc;">Captured on ${new Date(item.timestamp).toLocaleString()}</span>
+          </div>
+        </div>
+      `;
+      
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.remove();
+        }
+      });
+      
+      document.body.appendChild(modal);
+    }
+
+    // Load recent identifications on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRecentIdentifications();
+    });
+
+    // === Search Functionality with Autocomplete ===
+    let plantsDatabase = [];
+    const searchBar = document.getElementById('search-bar');
+    const suggestionsContainer = document.getElementById('search-suggestions');
+    
+    console.log('🔍 Search functionality initializing on index.html...');
+    
+    // Load plants database
+    async function loadPlantsDatabase() {
+      try {
+        const response = await fetch('plants-database.json');
+        const data = await response.json();
+        plantsDatabase = data.plants || [];
+        console.log('✅ Plants database loaded:', plantsDatabase.length, 'plants');
+      } catch (error) {
+        console.error('❌ Error loading plants database:', error);
+      }
+    }
+    
+    // Search plants function
+    function searchPlants(query) {
+      if (!query || query.trim().length === 0) {
+        return [];
+      }
+      
+      const searchTerm = query.toLowerCase().trim();
+      
+      return plantsDatabase.filter(plant => {
+        return plant.name.toLowerCase().includes(searchTerm) ||
+               plant.scientificName.toLowerCase().includes(searchTerm) ||
+               plant.category.toLowerCase().includes(searchTerm);
+      }).slice(0, 8);
+    }
+    
+    // Display search suggestions
+    function displaySuggestions(results) {
+      if (!suggestionsContainer) return;
+      
+      suggestionsContainer.innerHTML = '';
+      
+      if (results.length === 0) {
+        suggestionsContainer.innerHTML = '<div class="no-results">No plants found. Try a different search term.</div>';
+        suggestionsContainer.classList.add('active');
+        return;
+      }
+      
+      results.forEach(plant => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.className = 'suggestion-item';
+        suggestionItem.innerHTML = `
+          <span class="suggestion-icon">🌿</span>
+          <div class="suggestion-text">
+            <div class="suggestion-name">${plant.name}</div>
+            <div class="suggestion-category">${plant.category} • ${plant.scientificName}</div>
+          </div>
+        `;
+        
+        suggestionItem.addEventListener('click', () => {
+          showPlantDetail(plant);
+          suggestionsContainer.classList.remove('active');
+          searchBar.value = '';
+        });
+        
+        suggestionsContainer.appendChild(suggestionItem);
+      });
+      
+      suggestionsContainer.classList.add('active');
+    }
+    
+    // Hide suggestions
+    function hideSuggestions() {
+      if (suggestionsContainer) {
+        setTimeout(() => {
+          suggestionsContainer.classList.remove('active');
+        }, 200);
+      }
+    }
+    
+    // Show plant detail in modal
+    function showPlantDetail(plant) {
+      const modal = document.getElementById('plant-detail-modal');
+      const plantName = document.getElementById('detail-plant-name');
+      const scientificName = document.getElementById('detail-scientific-name');
+      const plantBody = document.getElementById('plant-detail-body');
+      
+      if (!modal || !plantName || !scientificName || !plantBody) return;
+      
+      plantName.textContent = plant.name;
+      scientificName.textContent = plant.scientificName;
+      
+      let difficultyClass = 'badge-easy';
+      if (plant.difficulty.toLowerCase().includes('moderate')) {
+        difficultyClass = 'badge-moderate';
+      } else if (plant.difficulty.toLowerCase().includes('hard')) {
+        difficultyClass = 'badge-hard';
+      }
+      
+      plantBody.innerHTML = `
+        <div class="plant-detail-section">
+          <h3>📊 Quick Info</h3>
+          <div style="margin-bottom: 15px;">
+            <span class="plant-detail-badge ${difficultyClass}">${plant.difficulty}</span>
+            <span class="plant-detail-badge" style="background: #e3f2fd; color: #1565c0;">${plant.category}</span>
+          </div>
+        </div>
+        
+        <div class="plant-detail-section">
+          <h3>💧 Care Requirements</h3>
+          <div class="plant-detail-grid">
+            <div class="plant-detail-item">
+              <div class="plant-detail-label">💧 Watering</div>
+              <div class="plant-detail-value">${plant.wateringFrequency}</div>
+            </div>
+            <div class="plant-detail-item">
+              <div class="plant-detail-label">☀️ Sunlight</div>
+              <div class="plant-detail-value">${plant.sunlight}</div>
+            </div>
+            <div class="plant-detail-item">
+              <div class="plant-detail-label">🌱 Soil Type</div>
+              <div class="plant-detail-value">${plant.soilType}</div>
+            </div>
+            <div class="plant-detail-item">
+              <div class="plant-detail-label">📏 Spacing</div>
+              <div class="plant-detail-value">${plant.spacing}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="plant-detail-section">
+          <h3>⏱️ Growth Information</h3>
+          <div class="plant-detail-item">
+            <div class="plant-detail-label">🕐 Growth Time</div>
+            <div class="plant-detail-value">${plant.growthTime}</div>
+          </div>
+        </div>
+        
+        <div class="plant-detail-section" style="text-align: center; margin-top: 30px;">
+          <button onclick="addPlantToGarden('${plant.name}')" class="nav-button" style="margin-right: 10px;">
+            ➕ Add to My Garden
+          </button>
+          <button onclick="setReminderForPlant('${plant.name}')" class="nav-button" style="background: linear-gradient(45deg, #f093fb, #f5576c);">
+            🔔 Set Reminder
+          </button>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Close plant detail modal
+    function closePlantDetail() {
+      const modal = document.getElementById('plant-detail-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+    
+    // Add plant to garden
+    function addPlantToGarden(plantName) {
+      let garden = JSON.parse(localStorage.getItem('garden')) || [];
+      
+      const exists = garden.some(p => p.name === plantName);
+      if (exists) {
+        alert(`"${plantName}" is already in your garden!`);
+        return;
+      }
+      
+      garden.push({ 
+        name: plantName, 
+        addedAt: new Date().toISOString() 
+      });
+      localStorage.setItem('garden', JSON.stringify(garden));
+      alert(`✅ "${plantName}" added to your garden!`);
+    }
+    
+    // Set reminder for plant
+    function setReminderForPlant(plantName) {
+      localStorage.setItem('reminderPlantName', plantName);
+      alert(`Setting reminder for "${plantName}". Redirecting to reminders page...`);
+      window.location.href = 'reminders.html';
+    }
+    
+    // Search bar event listeners
+    if (searchBar) {
+      console.log('✅ Search bar found and attaching listeners...');
+      
+      searchBar.addEventListener('input', function(e) {
+        const query = e.target.value;
+        console.log('🔍 Searching for:', query);
+        
+        if (query.trim().length === 0) {
+          hideSuggestions();
+          return;
+        }
+        
+        const results = searchPlants(query);
+        console.log('📊 Found results:', results.length);
+        displaySuggestions(results);
+      });
+      
+      searchBar.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          const query = searchBar.value;
+          const results = searchPlants(query);
+          
+          if (results.length > 0) {
+            showPlantDetail(results[0]);
+            suggestionsContainer.classList.remove('active');
+            searchBar.value = '';
+          } else {
+            alert('No plants found for: ' + query);
+          }
+          
+          e.preventDefault();
+        }
+      });
+      
+      searchBar.addEventListener('blur', hideSuggestions);
+      
+      searchBar.addEventListener('focus', function() {
+        if (searchBar.value.trim().length > 0) {
+          const results = searchPlants(searchBar.value);
+          displaySuggestions(results);
+        }
+      });
+    } else {
+      console.error('❌ Search bar not found!');
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('plant-detail-modal');
+      if (e.target === modal) {
+        closePlantDetail();
+      }
+    });
+    
+    // Load plants database
+    loadPlantsDatabase();
   </script>
   
+  <!-- Plant Detail Modal -->
+  <div id="plant-detail-modal" class="plant-detail-modal">
+    <div class="plant-detail-content">
+      <div class="plant-detail-header">
+        <button class="plant-detail-close" onclick="closePlantDetail()">&times;</button>
+        <h2 class="plant-detail-name" id="detail-plant-name"></h2>
+        <p class="plant-detail-scientific" id="detail-scientific-name"></p>
+      </div>
+      <div class="plant-detail-body" id="plant-detail-body">
+        <!-- Plant details will be loaded here dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Plant Modal Script -->
   <script src="plant-modal.js"></script>
   
