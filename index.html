@@ -19,7 +19,12 @@
         <span class="search-icon">🔍</span>
         <div id="search-suggestions" class="search-suggestions"></div>
       </div>
-      <button id="camera-btn" class="nav-button">📷</button>
+      <button id="camera-btn" class="nav-button camera-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+      </button>
     </div>
     <div class="header-right" id="header-right">
       <!-- Dynamic: Login/SignUp or Dashboard -->
@@ -69,7 +74,7 @@
         <p>Watch tutorials on growing plants</p>
       </div>
       <div class="feature">
-        <a href="#" class="feature-link">
+        <a href="#" class="feature-link" id="ai-assistant-btn">
           <span class="icon">💬</span>
           <h2>AI Assistant</h2>
         </a>
@@ -78,30 +83,65 @@
     </section>
 
     <!-- 🌿 Reminder Feature Starts Here -->
-    <section id="reminder-feature" style="border: 1px solid #ccc; padding: 20px; margin: 20px 0; border-radius: 8px; background: #f9f9f9; font-family: Arial, sans-serif; font-size: 14px;">
-      <h2 style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">🔔 Set a Plant Reminder</h2>
-      <label for="plantName" style="font-size: 14px; color: #333;">Plant Name:</label>
-      <input type="text" id="plantName" placeholder="e.g. Basil" style="font-size: 14px;" />
+    <section id="reminder-feature" class="reminder-section">
+      <div class="reminder-header">
+        <div class="reminder-icon">🔔</div>
+        <h2>Set a Plant Reminder</h2>
+        <p>Never miss a watering or care task again</p>
+      </div>
+      
+      <div class="reminder-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="plantName">
+              <span class="label-icon">🌱</span>
+              Plant Name
+            </label>
+            <input type="text" id="plantName" placeholder="e.g. Basil" class="reminder-input" />
+          </div>
 
-      <label for="task" style="font-size: 14px; color: #333;">Task:</label>
-      <select id="task" style="font-size: 14px;">
-        <option value="Water">Water</option>
-        <option value="Fertilize">Fertilize</option>
-        <option value="Pesticide">Pesticide</option>
-        <option value="Cutting">Cutting</option>
-      </select>
+          <div class="form-group">
+            <label for="task">
+              <span class="label-icon">📋</span>
+              Task Type
+            </label>
+            <select id="task" class="reminder-select">
+              <option value="Water">💧 Water</option>
+              <option value="Fertilize">🌿 Fertilize</option>
+              <option value="Pesticide">🐛 Pesticide</option>
+              <option value="Cutting">✂️ Cutting</option>
+            </select>
+          </div>
+        </div>
 
-      <label for="frequency" style="font-size: 14px; color: #333;">Reminder Frequency:</label>
-      <select id="frequency" style="font-size: 14px;">
-        <option value="Once">Once</option>
-        <option value="Weekly">Weekly</option>
-        <option value="Monthly">Monthly</option>
-      </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="frequency">
+              <span class="label-icon">🔄</span>
+              Frequency
+            </label>
+            <select id="frequency" class="reminder-select">
+              <option value="Once">Once</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+            </select>
+          </div>
 
-      <label for="reminderTime" style="font-size: 14px; color: #333;">Set Time:</label>
-      <input type="time" id="reminderTime" style="font-size: 14px;" />
+          <div class="form-group">
+            <label for="reminderTime">
+              <span class="label-icon">⏰</span>
+              Time
+            </label>
+            <input type="time" id="reminderTime" class="reminder-input" />
+          </div>
+        </div>
 
-      <button onclick="setReminder()" class="nav-button">Set Reminder</button>
+        <button onclick="setReminder()" class="reminder-button">
+          <span>🔔</span>
+          Set Reminder
+        </button>
+      </div>
+      
       <audio id="alarmSound" src="alarm.mp3" preload="auto" onerror="console.error('❌ alarm.mp3 not found')"></audio>
     </section>
     <!-- 🌿 Reminder Feature Ends Here -->
@@ -118,13 +158,8 @@
       </div>
       <div class="info-card">
         <h3>Today's Tasks</h3>
-        <div class="info-item">
-          
-          <img src="cherrytomato.webp" alt="placeholder" width="50" height="50">
-          <div>
-            <strong>Water Cherry Tomato</strong><br />
-            Due in 2 hours
-          </div>
+        <div id="today-tasks-list">
+          <!-- Today's tasks will be loaded dynamically -->
         </div>
       </div>
       <div class="info-card">
@@ -194,11 +229,51 @@
     } else {
       // Update header for logged in
       const headerRight = document.getElementById('header-right');
-      headerRight.innerHTML = `<a href="dashboard.html" class="nav-button">Dashboard</a> <div class="account-dropdown" id="account-name">${currentUser.name} ▼</div><div class="dropdown-menu" id="dropdown-menu" style="display:none; position:absolute; background:white; border:1px solid #ccc; padding:10px; z-index:1000;"><button onclick="logout()">Log Out</button><button onclick="profile()">Profile</button><button onclick="switchUser()">Switch User</button></div>`;
+      headerRight.innerHTML = `
+        <a href="dashboard.html" class="nav-button">Dashboard</a> 
+        <div class="account-dropdown" id="account-name">
+          <span class="user-icon">👤</span>
+          <span class="user-name">${currentUser.name}</span>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu">
+          <div class="dropdown-header">
+            <div class="dropdown-user-icon">👤</div>
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-name">${currentUser.name}</div>
+              <div class="dropdown-user-email">${currentUser.email || 'Urban Gardener'}</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="profile()">
+            <span class="dropdown-item-icon">👤</span>
+            <span>Profile</span>
+          </button>
+          <button class="dropdown-item" onclick="switchUser()">
+            <span class="dropdown-item-icon">🔄</span>
+            <span>Switch User</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout" onclick="logout()">
+            <span class="dropdown-item-icon">🚪</span>
+            <span>Log Out</span>
+          </button>
+        </div>
+      `;
       // Add event listener for dropdown
-      document.getElementById('account-name').addEventListener('click', function() {
+      document.getElementById('account-name').addEventListener('click', function(e) {
+        e.stopPropagation();
         const menu = document.getElementById('dropdown-menu');
         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        const menu = document.getElementById('dropdown-menu');
+        const accountDropdown = document.getElementById('account-name');
+        if (menu && accountDropdown && !accountDropdown.contains(e.target) && !menu.contains(e.target)) {
+          menu.style.display = 'none';
+        }
       });
     }
 
@@ -215,6 +290,81 @@
       logout();
     }
 
+    // Show reminder notification modal
+    function showReminderNotification(task, plant, reminderId) {
+      const modal = document.createElement('div');
+      modal.id = 'reminder-notification-modal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10001;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+      `;
+      
+      modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #7ed56f, #28b485); padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: bounce 0.5s ease; max-width: 400px;">
+          <div style="font-size: 80px; margin-bottom: 20px; animation: ring 1s ease infinite;">🔔</div>
+          <h2 style="color: white; font-size: 28px; margin-bottom: 15px; font-weight: 700;">Reminder Alert!</h2>
+          <p style="color: white; font-size: 20px; margin-bottom: 30px;">Time to <strong>${task}</strong> your <strong>${plant}</strong>!</p>
+          <button onclick="completeReminder(${reminderId})" style="background: white; color: #28b485; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            Mark as Complete ✓
+          </button>
+        </div>
+      `;
+      
+      // Add ring animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes ring {
+          0%, 100% { transform: rotate(0deg); }
+          10%, 30% { transform: rotate(-10deg); }
+          20%, 40% { transform: rotate(10deg); }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      document.body.appendChild(modal);
+      
+      // Also try browser notification if permitted
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("UrbanGrow Reminder", {
+          body: `Time to ${task} your ${plant}!`,
+          icon: "🔔"
+        });
+      }
+    }
+
+    // Complete reminder and save to history
+    function completeReminder(reminderId) {
+      let reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+      const reminderIndex = reminders.findIndex(r => r.id === reminderId);
+      
+      if (reminderIndex !== -1) {
+        reminders[reminderIndex].status = 'completed';
+        reminders[reminderIndex].completedAt = new Date().toISOString();
+        localStorage.setItem('reminders', JSON.stringify(reminders));
+        
+        // Add to task history
+        let taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
+        taskHistory.unshift({
+          ...reminders[reminderIndex],
+          completedAt: new Date().toISOString()
+        });
+        localStorage.setItem('taskHistory', JSON.stringify(taskHistory));
+      }
+      
+      // Remove modal
+      const modal = document.getElementById('reminder-notification-modal');
+      if (modal) modal.remove();
+    }
+
     function setReminder() {
       const plant = document.getElementById('plantName').value;
       const task = document.getElementById('task').value;
@@ -226,7 +376,10 @@
         return;
       }
 
-      alert(`Reminder set for ${task} ${plant} (${frequency}) at ${time}`);
+      // Request notification permission
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
 
       const now = new Date();
       const [hours, minutes] = time.split(":");
@@ -236,9 +389,31 @@
       let delay = reminderTime - now;
       if (delay < 0) delay += 86400000; // next day
 
+      // Save reminder to localStorage
+      const reminder = {
+        id: Date.now(),
+        plantName: plant,
+        task: task,
+        frequency: frequency,
+        time: time,
+        date: reminderTime.toISOString(),
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      let reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+      reminders.push(reminder);
+      localStorage.setItem('reminders', JSON.stringify(reminders));
+
+      alert(`Reminder set for ${task} ${plant} (${frequency}) at ${time}`);
+
       setTimeout(() => {
-        document.getElementById('alarmSound').play();
-        alert(`⏰ Time to ${task} your ${plant}!`);
+        // Play alarm sound immediately
+        const alarmSound = document.getElementById('alarmSound');
+        alarmSound.play().catch(err => console.log('Audio play failed:', err));
+        
+        // Show custom notification modal instead of alert
+        showReminderNotification(task, plant, reminder.id);
       }, delay);
     }
 
@@ -539,9 +714,74 @@
       document.body.appendChild(modal);
     }
 
-    // Load recent identifications on page load
+    // Function to load and display today's tasks
+    function loadTodayTasks() {
+      const reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+      const tasksContainer = document.getElementById('today-tasks-list');
+      
+      if (!tasksContainer) return;
+      
+      // Get today's date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Filter tasks for today
+      const todaysTasks = reminders.filter(reminder => {
+        const reminderDate = new Date(reminder.date || reminder.time);
+        reminderDate.setHours(0, 0, 0, 0);
+        return reminderDate.getTime() === today.getTime();
+      });
+      
+      // Clear existing content
+      tasksContainer.innerHTML = '';
+      
+      if (todaysTasks.length === 0) {
+        tasksContainer.innerHTML = `
+          <div class="info-item" style="color: #999; font-style: italic;">
+            No tasks scheduled for today
+          </div>
+        `;
+        return;
+      }
+      
+      // Display up to 3 most recent tasks
+      const displayCount = Math.min(3, todaysTasks.length);
+      
+      for (let i = 0; i < displayCount; i++) {
+        const task = todaysTasks[i];
+        const taskIcon = getTaskIconForHome(task.task || task.type);
+        
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'info-item';
+        taskDiv.innerHTML = `
+          <div style="font-size: 32px;">${taskIcon}</div>
+          <div>
+            <strong>${task.task || task.type} ${task.plantName || task.plant || ''}</strong><br />
+            Due ${task.time || 'today'}
+          </div>
+        `;
+        
+        tasksContainer.appendChild(taskDiv);
+      }
+    }
+    
+    // Get appropriate icon for task type
+    function getTaskIconForHome(taskType) {
+      const icons = {
+        'Water': '💧',
+        'Fertilize': '🌿',
+        'Pesticide': '🐛',
+        'Cutting': '✂️',
+        'Prune': '✂️',
+        'default': '📋'
+      };
+      return icons[taskType] || icons['default'];
+    }
+
+    // Load recent identifications and today's tasks on page load
     window.addEventListener('DOMContentLoaded', () => {
       loadRecentIdentifications();
+      loadTodayTasks();
     });
 
     // === Search Functionality with Autocomplete ===
@@ -801,8 +1041,55 @@
     </div>
   </div>
 
+  <!-- Coming Soon Modal -->
+  <div id="coming-soon-modal" class="coming-soon-modal" style="display: none;">
+    <div class="coming-soon-content">
+      <button class="coming-soon-close" onclick="closeComingSoonModal()">&times;</button>
+      <div class="coming-soon-icon">🚀</div>
+      <h2>AI Assistant Coming Soon!</h2>
+      <p>We're working hard to bring you an intelligent AI assistant that will help answer all your gardening questions.</p>
+      <div class="coming-soon-features">
+        <div class="feature-item">
+          <span class="feature-emoji">🤖</span>
+          <span>Smart plant care advice</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-emoji">💡</span>
+          <span>Personalized recommendations</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-emoji">📚</span>
+          <span>Expert gardening tips</span>
+        </div>
+      </div>
+      <p class="coming-soon-footer">Stay tuned for updates! 🌿</p>
+      <button class="coming-soon-button" onclick="closeComingSoonModal()">Got it!</button>
+    </div>
+  </div>
+
   <!-- Plant Modal Script -->
   <script src="plant-modal.js"></script>
+  
+  <script>
+    // AI Assistant Coming Soon functionality
+    document.getElementById('ai-assistant-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('coming-soon-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closeComingSoonModal() {
+      document.getElementById('coming-soon-modal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('coming-soon-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeComingSoonModal();
+      }
+    });
+  </script>
   
 </body>
 </html>

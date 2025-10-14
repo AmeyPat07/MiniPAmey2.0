@@ -7,46 +7,86 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="title">UrbanGrow</div>
-        <div class="nav">
-            <button id="home-btn">Home</button>
-            <input type="text" id="search-bar" placeholder="Search for plants...">
-            <button id="camera-btn">📷 Camera</button>
-        </div>
-        <div class="account">Account</div>
-    </header>
-    <main>
-        <section id="signup">
-            <h1>Sign Up</h1>
+    <main class="login-main">
+        <section id="login-section">
+            <div class="login-header">
+                <h1>🌿 Join UrbanGrow!</h1>
+                <p>Create your account and start your gardening journey</p>
+            </div>
             <form id="signup-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" required>
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-                <button type="submit">Sign Up</button>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Create a password" minlength="6">
+                </div>
+                <button type="submit" class="nav-button">Sign Up</button>
             </form>
-            <p>Already have an account? <a href="login.html">Login</a></p>
+            <p id="error-msg" class="error-message"></p>
+            <p id="success-msg" class="success-message"></p>
+            <div class="signup-link">
+                <p>Already have an account? <a href="login.html">Login</a></p>
+            </div>
         </section>
     </main>
     <script src="script.js"></script>
     <script>
         document.getElementById('signup-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            if (users.find(u => u.email === email)) {
-                alert('User already exists.');
-            } else {
-                users.push({ name, email, password, activities: [] });
-                localStorage.setItem('users', JSON.stringify(users));
-                alert('Sign up successful! Please login.');
-                window.location.href = 'login.html';
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const successMsg = document.getElementById('success-msg');
+            
+            // Clear previous messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            // Validate password length
+            if (password.length < 6) {
+                errorMsg.textContent = 'Password must be at least 6 characters long.';
+                errorMsg.style.display = 'block';
+                return;
             }
+            
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            // Check if user already exists
+            if (users.find(u => u.email === email)) {
+                errorMsg.textContent = 'An account with this email already exists. Please login.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                name: name,
+                email: email,
+                password: password,
+                activities: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            // Add user to database
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Show success message
+            successMsg.textContent = 'Account created successfully! Redirecting to login...';
+            successMsg.style.display = 'block';
+            
+            // Redirect to login after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
         });
     </script>
 </body>

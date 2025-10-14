@@ -36,64 +36,33 @@
                     <div class="stat-icon">🌱</div>
                     <div class="stat-content">
                         <h3>Total Plants</h3>
-                        <p class="stat-number" id="total-plants">12</p>
-                        <span class="stat-change positive">+2 this week</span>
+                        <p class="stat-number" id="total-plants">0</p>
+                        <span class="stat-change positive" id="plants-change"></span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">💧</div>
                     <div class="stat-content">
                         <h3>Tasks Today</h3>
-                        <p class="stat-number" id="tasks-today">5</p>
-                        <span class="stat-change">3 completed</span>
+                        <p class="stat-number" id="tasks-today">0</p>
+                        <span class="stat-change" id="tasks-status"></span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">✅</div>
                     <div class="stat-content">
                         <h3>Healthy Plants</h3>
-                        <p class="stat-number" id="healthy-plants">10</p>
-                        <span class="stat-change positive">83% health rate</span>
+                        <p class="stat-number" id="healthy-plants">0</p>
+                        <span class="stat-change positive" id="health-rate"></span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">⚠️</div>
                     <div class="stat-content">
                         <h3>Need Attention</h3>
-                        <p class="stat-number" id="attention-plants">2</p>
-                        <span class="stat-change warning">Check now</span>
+                        <p class="stat-number" id="attention-plants">0</p>
+                        <span class="stat-change warning" id="attention-status"></span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="section-title">
-                <h2>Quick Actions</h2>
-            </div>
-            <div class="dashboard-grid">
-                <div class="dashboard-card quick-action">
-                    <div class="card-icon">📷</div>
-                    <h3>Identify Plant</h3>
-                    <p>Take a photo to identify your plant</p>
-                    <a href="index.html#identify" class="action-button">Start Scan</a>
-                </div>
-                <div class="dashboard-card quick-action">
-                    <div class="card-icon">➕</div>
-                    <h3>Add Plant</h3>
-                    <p>Add a new plant to your garden</p>
-                    <a href="index.html#add" class="action-button">Add Now</a>
-                </div>
-                <div class="dashboard-card quick-action">
-                    <div class="card-icon">🔔</div>
-                    <h3>Set Reminder</h3>
-                    <p>Schedule plant care tasks</p>
-                    <a href="reminders.html" class="action-button">Create</a>
-                </div>
-                <div class="dashboard-card quick-action">
-                    <div class="card-icon">📚</div>
-                    <h3>Growing Guides</h3>
-                    <p>Learn how to grow plants</p>
-                    <a href="plants.html" class="action-button">Explore</a>
                 </div>
             </div>
 
@@ -104,38 +73,15 @@
                         <h2>📋 Upcoming Tasks</h2>
                         <a href="reminders.html" class="view-all">View All →</a>
                     </div>
-                    <div class="task-list">
-                        <div class="task-item">
-                            <div class="task-icon">💧</div>
-                            <div class="task-details">
-                                <h4>Water Snake Plant</h4>
-                                <p>Due in 2 hours</p>
-                            </div>
-                            <button class="task-complete">✓</button>
-                        </div>
-                        <div class="task-item">
-                            <div class="task-icon">🌿</div>
-                            <div class="task-details">
-                                <h4>Fertilize Tomatoes</h4>
-                                <p>Due today at 5:00 PM</p>
-                            </div>
-                            <button class="task-complete">✓</button>
-                        </div>
-                        <div class="task-item">
-                            <div class="task-icon">✂️</div>
-                            <div class="task-details">
-                                <h4>Prune Basil</h4>
-                                <p>Due tomorrow</p>
-                            </div>
-                            <button class="task-complete">✓</button>
-                        </div>
+                    <div class="task-list" id="task-list">
+                        <!-- Tasks will be loaded dynamically -->
                     </div>
                 </div>
 
                 <div class="activity-section">
                     <div class="section-header">
                         <h2>🌱 My Garden</h2>
-                        <a href="index.html" class="view-all">View All →</a>
+                        <a href="my-garden.html" class="view-all">View All →</a>
                     </div>
                     <div class="plant-grid">
                         <div class="plant-mini-card">
@@ -168,7 +114,7 @@
                 <h2>Manage Your Garden</h2>
             </div>
             <div class="nav-cards">
-                <a href="index.html" class="nav-card">
+                <a href="my-garden.html" class="nav-card">
                     <div class="nav-card-icon">🏡</div>
                     <h3>My Garden</h3>
                     <p>View and manage all your plants</p>
@@ -211,18 +157,208 @@
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         dateElement.textContent = new Date().toLocaleDateString('en-US', options);
 
-        // Task complete buttons
-        document.querySelectorAll('.task-complete').forEach(button => {
-            button.addEventListener('click', function() {
-                const taskItem = this.closest('.task-item');
-                taskItem.style.opacity = '0.5';
-                this.textContent = '✓';
-                this.style.background = '#4CAF50';
-                setTimeout(() => {
-                    taskItem.style.display = 'none';
-                }, 500);
+        // Load actual plant count from localStorage
+        function updatePlantStats() {
+            const myGarden = JSON.parse(localStorage.getItem('myGarden')) || [];
+            const totalPlantsElement = document.getElementById('total-plants');
+            const plantsChangeElement = document.getElementById('plants-change');
+            const healthyPlantsElement = document.getElementById('healthy-plants');
+            const healthRateElement = document.getElementById('health-rate');
+            const attentionPlantsElement = document.getElementById('attention-plants');
+            const attentionStatusElement = document.getElementById('attention-status');
+            
+            // Update total plants count
+            totalPlantsElement.textContent = myGarden.length;
+            
+            // Calculate health statistics
+            let healthyCount = 0;
+            let needsAttentionCount = 0;
+            
+            myGarden.forEach(plant => {
+                // Check if plant has health status
+                if (plant.health === 'healthy' || plant.status === 'healthy') {
+                    healthyCount++;
+                } else if (plant.health === 'attention' || plant.status === 'attention' || plant.needsAttention) {
+                    needsAttentionCount++;
+                } else {
+                    // If no status is set, consider it healthy by default
+                    healthyCount++;
+                }
             });
-        });
+            
+            // Update healthy plants
+            healthyPlantsElement.textContent = healthyCount;
+            
+            // Update health rate
+            if (myGarden.length === 0) {
+                healthRateElement.textContent = 'No plants yet';
+                healthRateElement.className = 'stat-change';
+            } else {
+                const healthRate = Math.round((healthyCount / myGarden.length) * 100);
+                healthRateElement.textContent = `${healthRate}% health rate`;
+                healthRateElement.className = 'stat-change positive';
+            }
+            
+            // Update plants needing attention
+            attentionPlantsElement.textContent = needsAttentionCount;
+            
+            // Update attention status
+            if (needsAttentionCount === 0) {
+                attentionStatusElement.textContent = 'All good!';
+                attentionStatusElement.className = 'stat-change positive';
+            } else {
+                attentionStatusElement.textContent = 'Check now';
+                attentionStatusElement.className = 'stat-change warning';
+            }
+            
+            // Update change message for total plants
+            if (myGarden.length === 0) {
+                plantsChangeElement.textContent = 'Add your first plant!';
+                plantsChangeElement.className = 'stat-change';
+            } else if (myGarden.length === 1) {
+                plantsChangeElement.textContent = 'Great start!';
+                plantsChangeElement.className = 'stat-change positive';
+            } else {
+                plantsChangeElement.textContent = `${myGarden.length} plants growing`;
+                plantsChangeElement.className = 'stat-change positive';
+            }
+        }
+        
+        // Call the function to update stats
+        updatePlantStats();
+
+        // Load tasks from localStorage and display today's tasks
+        function loadTodaysTasks() {
+            const reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+            const taskListElement = document.getElementById('task-list');
+            const tasksTodayElement = document.getElementById('tasks-today');
+            const tasksStatusElement = document.getElementById('tasks-status');
+            
+            // Get today's date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Filter tasks for today
+            const todaysTasks = reminders.filter(reminder => {
+                const reminderDate = new Date(reminder.date || reminder.time);
+                reminderDate.setHours(0, 0, 0, 0);
+                return reminderDate.getTime() === today.getTime();
+            });
+            
+            // Separate pending and completed tasks
+            const pendingTasks = todaysTasks.filter(t => t.status !== 'completed');
+            const completedTasks = todaysTasks.filter(t => t.status === 'completed');
+            
+            // Update task count (show pending tasks)
+            tasksTodayElement.textContent = pendingTasks.length;
+            
+            // Update status message
+            if (todaysTasks.length === 0) {
+                tasksStatusElement.textContent = 'No tasks scheduled';
+                tasksStatusElement.className = 'stat-change';
+            } else if (completedTasks.length === todaysTasks.length) {
+                tasksStatusElement.textContent = 'All tasks completed!';
+                tasksStatusElement.className = 'stat-change positive';
+            } else {
+                tasksStatusElement.textContent = `${completedTasks.length}/${todaysTasks.length} completed`;
+                tasksStatusElement.className = 'stat-change';
+            }
+            
+            // Clear task list
+            taskListElement.innerHTML = '';
+            
+            // Display tasks or empty message
+            if (todaysTasks.length === 0) {
+                taskListElement.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #999;">
+                        <p>No tasks scheduled for today</p>
+                        <a href="reminders.html" style="color: #4CAF50; text-decoration: none;">Set a reminder →</a>
+                    </div>
+                `;
+            } else {
+                // Display pending tasks first
+                if (pendingTasks.length > 0) {
+                    pendingTasks.forEach(task => {
+                        const taskIcon = getTaskIcon(task.task || task.type);
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        taskItem.setAttribute('data-task-id', task.id);
+                        taskItem.innerHTML = `
+                            <div class="task-icon">${taskIcon}</div>
+                            <div class="task-details">
+                                <h4>${task.task || task.type} ${task.plantName || task.plant || ''}</h4>
+                                <p>Due ${task.time || 'today'}</p>
+                            </div>
+                            <button class="task-complete" onclick="completeTaskDashboard(${task.id})">✓</button>
+                        `;
+                        taskListElement.appendChild(taskItem);
+                    });
+                }
+                
+                // Display completed tasks
+                if (completedTasks.length > 0) {
+                    const completedHeader = document.createElement('div');
+                    completedHeader.style.cssText = 'margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;';
+                    completedHeader.innerHTML = '<h4 style="color: #4CAF50; margin-bottom: 10px;">✓ Completed Today</h4>';
+                    taskListElement.appendChild(completedHeader);
+                    
+                    completedTasks.forEach(task => {
+                        const taskIcon = getTaskIcon(task.task || task.type);
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        taskItem.style.opacity = '0.6';
+                        taskItem.innerHTML = `
+                            <div class="task-icon">${taskIcon}</div>
+                            <div class="task-details">
+                                <h4 style="text-decoration: line-through;">${task.task || task.type} ${task.plantName || task.plant || ''}</h4>
+                                <p>Completed at ${new Date(task.completedAt).toLocaleTimeString()}</p>
+                            </div>
+                            <div style="color: #4CAF50; font-size: 24px;">✓</div>
+                        `;
+                        taskListElement.appendChild(taskItem);
+                    });
+                }
+            }
+        }
+        
+        // Get appropriate icon for task type
+        function getTaskIcon(taskType) {
+            const icons = {
+                'Water': '💧',
+                'Fertilize': '🌿',
+                'Pesticide': '🐛',
+                'Cutting': '✂️',
+                'Prune': '✂️',
+                'default': '📋'
+            };
+            return icons[taskType] || icons['default'];
+        }
+        
+        // Complete task function from dashboard
+        function completeTaskDashboard(taskId) {
+            let reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+            const reminderIndex = reminders.findIndex(r => r.id === taskId);
+            
+            if (reminderIndex !== -1) {
+                reminders[reminderIndex].status = 'completed';
+                reminders[reminderIndex].completedAt = new Date().toISOString();
+                localStorage.setItem('reminders', JSON.stringify(reminders));
+                
+                // Add to task history
+                let taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
+                taskHistory.unshift({
+                    ...reminders[reminderIndex],
+                    completedAt: new Date().toISOString()
+                });
+                localStorage.setItem('taskHistory', JSON.stringify(taskHistory));
+                
+                // Reload tasks to show updated status
+                loadTodaysTasks();
+            }
+        }
+        
+        // Load tasks on page load
+        loadTodaysTasks();
 
         function logout() {
             localStorage.removeItem('currentUser');

@@ -22,8 +22,27 @@
     </header>
     <main>
         <section id="track-record">
-            <h1>Your Gardening Activities</h1>
-            <ul id="activity-list"></ul>
+            <div class="track-record-header">
+                <h1>🌿 Your Gardening Track Record</h1>
+                <p>History of all your completed gardening tasks</p>
+            </div>
+            
+            <div class="track-record-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="total-completed">0</div>
+                    <div class="stat-label">Total Tasks Completed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="this-week">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="this-month">0</div>
+                    <div class="stat-label">This Month</div>
+                </div>
+            </div>
+            
+            <div id="activity-list" class="activity-timeline"></div>
         </section>
     </main>
     <script>
@@ -57,16 +76,89 @@
     </script>
     <script src="script.js"></script>
     <script>
-        const activityList = document.getElementById('activity-list');
-
-        if (currentUser) {
-            currentUser.activities.forEach(activity => {
-                const li = document.createElement('li');
-                li.textContent = activity;
-                activityList.appendChild(li);
+        // Load task history
+        function loadTaskHistory() {
+            const taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
+            const activityList = document.getElementById('activity-list');
+            const totalCompletedEl = document.getElementById('total-completed');
+            const thisWeekEl = document.getElementById('this-week');
+            const thisMonthEl = document.getElementById('this-month');
+            
+            // Calculate stats
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            
+            const thisWeekTasks = taskHistory.filter(t => new Date(t.completedAt) >= weekAgo);
+            const thisMonthTasks = taskHistory.filter(t => new Date(t.completedAt) >= monthAgo);
+            
+            totalCompletedEl.textContent = taskHistory.length;
+            thisWeekEl.textContent = thisWeekTasks.length;
+            thisMonthEl.textContent = thisMonthTasks.length;
+            
+            // Display history
+            activityList.innerHTML = '';
+            
+            if (taskHistory.length === 0) {
+                activityList.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #999;">
+                        <div style="font-size: 60px; margin-bottom: 20px;">📋</div>
+                        <h3>No completed tasks yet</h3>
+                        <p>Complete your first task to see it here!</p>
+                        <a href="index.html" style="color: #4CAF50; text-decoration: none; font-weight: 600;">Set a reminder →</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group by date
+            const groupedByDate = {};
+            taskHistory.forEach(task => {
+                const date = new Date(task.completedAt).toLocaleDateString();
+                if (!groupedByDate[date]) {
+                    groupedByDate[date] = [];
+                }
+                groupedByDate[date].push(task);
             });
-        } else {
-            activityList.innerHTML = '<li>Please login to view your activities.</li>';
+            
+            // Display grouped tasks
+            Object.keys(groupedByDate).forEach(date => {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.innerHTML = `<h3>${date}</h3>`;
+                activityList.appendChild(dateHeader);
+                
+                groupedByDate[date].forEach(task => {
+                    const taskIcon = getTaskIcon(task.task);
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'history-item';
+                    taskItem.innerHTML = `
+                        <div class="history-icon">${taskIcon}</div>
+                        <div class="history-details">
+                            <h4>${task.task} ${task.plantName}</h4>
+                            <p>Completed at ${new Date(task.completedAt).toLocaleTimeString()}</p>
+                        </div>
+                        <div class="history-check">✓</div>
+                    `;
+                    activityList.appendChild(taskItem);
+                });
+            });
+        }
+        
+        function getTaskIcon(taskType) {
+            const icons = {
+                'Water': '💧',
+                'Fertilize': '🌿',
+                'Pesticide': '🐛',
+                'Cutting': '✂️',
+                'default': '📋'
+            };
+            return icons[taskType] || icons['default'];
+        }
+        
+        // Load on page load
+        if (currentUser) {
+            loadTaskHistory();
         }
     </script>
 </body>
